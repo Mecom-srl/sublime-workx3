@@ -1,7 +1,7 @@
 {
-	"version": "2.2", 
-	"url": "https://github.com/meska/Sb3Bot", 
-	"description": "Mecom Work 2 Api",
+	"version": "3.1", 
+	"url": "https://gitlab.com/mecom/workx3sublime", 
+	"description": "Mecom Work X3",
 	"sublime_text": "*",
 	"platforms": ["*"]
 }
