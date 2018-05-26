@@ -9,9 +9,8 @@ import requests
 import getpass
 
 __version__ = '1.1'
-REDIS_SERVER = 'redis.mecom.lan'
-SETTINGS_FILE = 'WorkBot.sublime-settings'
-SETTINGS = {}
+settings_file = 'WorkX3.sublime-settings'
+settings = {}
 PLUGIN_DIR = os.path.dirname(os.path.realpath(__file__))
 # add redis package to path
 sys.path.insert(0, os.path.join(PLUGIN_DIR, 'packages'))
@@ -19,7 +18,7 @@ import redis
 from hashlib import sha224
 
 hostkey = sha224(("%s %s" % (getpass.getuser(),socket.gethostname())).encode()).hexdigest()
-settings = sublime.load_settings("WorkX3.sublime-settings")
+
 
 # Log Levels
 DEBUG = 'DEBUG'
@@ -28,7 +27,7 @@ WARNING = 'WARNING'
 ERROR = 'ERROR'
 def log(lvl, message, *args, **kwargs):
     try:
-        if lvl == DEBUG and not SETTINGS.get('debug'):
+        if lvl == DEBUG and not settings.get('debug'):
             return
         msg = message
         if len(args) > 0:
@@ -82,7 +81,7 @@ class WorkSendToBotCommand(sublime_plugin.TextCommand):
             )
             # r = requests.post("http://workx3.mecom.lan/bot/sublimeinput/",params,timeout=60)
             # "http://localhost:8001/bot/sublimeinput/"
-            r = requests.post(ettings.get("host"),params,timeout=60)
+            r = requests.post(settings.get("host"),params,timeout=60)
 
             if r.status_code == requests.codes.ok:
                 if not r.text.startswith('ok'):
@@ -97,26 +96,27 @@ class WorkSendToBotCommand(sublime_plugin.TextCommand):
 class MecomWorkKillRedis(sublime_plugin.TextCommand):
     def run(self, edit):
         log(INFO, "Kill Connection")
-        r = redis.Redis(REDIS_SERVER)
+        r = redis.Redis(settings.get('redis'))
         r.publish('sublime_%s' % socket.gethostname(), 'KILL')
 
 class MecomWorkTestRedis(sublime_plugin.TextCommand):
     def run(self, edit):
-        log(INFO, "Test Connection")
+        log(INFO, "Test settings.get('redis')")
         r = redis.Redis(REDIS_SERVER)
         r.publish('sublime_%s' % socket.gethostname(), 'Test')
 
 
 
 def plugin_loaded():
-    global SETTINGS
+    global settings
     log(INFO, 'Initializing MecomWork plugin v%s' % __version__)
+    settings = sublime.load_settings(settings_file)
     
-    r = redis.Redis(REDIS_SERVER)
+    log(INFO,'Redis listener launch on ' + settings.get('redis'))
+    r = redis.Redis(settings.get('redis'))
     client = Listener(r, ['sublime_%s' % socket.gethostname()])
     client.start()
 
-    SETTINGS = sublime.load_settings(SETTINGS_FILE)
 
     #r.publish('sublime_%s' % socket.gethostname(), 'this will reach the listener')
 

@@ -1,3 +1,4 @@
 {
-	"host":"http://workx3.mecom.lan/bot/sublimeinput/"
+	"host":"http://workx3.mecom.lan/bot/sublimeinput/",
+	"redis":"workx3.mecom.lan"
 }
