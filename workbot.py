@@ -61,7 +61,7 @@ class Listener(threading.Thread):
                 self.work(item)
 
 
-class MecomWorkSendToBotCommand(sublime_plugin.TextCommand):
+class WorkSendToBotCommand(sublime_plugin.TextCommand):
 
     def run(self, edit):
         sublime.active_window().run_command("show_panel", {"panel": "console", "toggle": True})
