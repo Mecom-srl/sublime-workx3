@@ -8,7 +8,7 @@ import socket
 import requests
 import getpass
 
-__version__ = '2.2'
+__version__ = '1.0'
 REDIS_SERVER = 'redis.mecom.lan'
 SETTINGS_FILE = 'WorkBot.sublime-settings'
 SETTINGS = {}
@@ -78,8 +78,8 @@ class MecomWorkSendToBotCommand(sublime_plugin.TextCommand):
                 user=hostkey,
                 text=text
             )
-            r = requests.post("http://work.mecomsrl.com/bot/sublimeinput/",params,timeout=60)
-            # r = requests.post("http://localhost:8000/bot/sublimeinput/",params,timeout=60)
+            # r = requests.post("http://workx3.mecom.lan/bot/sublimeinput/",params,timeout=60)
+            r = requests.post("http://127.0.0.1:8000/bot/sublimeinput/",params,timeout=60)
             if r.status_code == requests.codes.ok:
                 if not r.text.startswith('ok'):
                     print(r.text)
