@@ -1,6 +1,6 @@
 [
     {
-        "command": "mecom_workx3_send_to_bot",
+        "command": "work_send_to_bot",
         "caption": "Invia a Work X3"
     }  
 ]
