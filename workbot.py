@@ -19,6 +19,7 @@ import redis
 from hashlib import sha224
 
 hostkey = sha224(("%s %s" % (getpass.getuser(),socket.gethostname())).encode()).hexdigest()
+settings = sublime.load_settings("WorkX3.sublime-settings")
 
 # Log Levels
 DEBUG = 'DEBUG'
@@ -64,6 +65,7 @@ class Listener(threading.Thread):
 class WorkSendToBotCommand(sublime_plugin.TextCommand):
 
     def run(self, edit):
+
         sublime.active_window().run_command("show_panel", {"panel": "console", "toggle": True})
 
         for selection in self.view.sel():
@@ -79,7 +81,9 @@ class WorkSendToBotCommand(sublime_plugin.TextCommand):
                 text=text
             )
             # r = requests.post("http://workx3.mecom.lan/bot/sublimeinput/",params,timeout=60)
-            r = requests.post("http://localhost:8001/bot/sublimeinput/",params,timeout=60)
+            # "http://localhost:8001/bot/sublimeinput/"
+            r = requests.post(ettings.get("host"),params,timeout=60)
+
             if r.status_code == requests.codes.ok:
                 if not r.text.startswith('ok'):
                     print(r.text)
