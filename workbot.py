@@ -44,7 +44,7 @@ class Listener(threading.Thread):
         self.redis = r
         self.pubsub = self.redis.pubsub()
         self.pubsub.subscribe(channels)
-    
+
     def work(self, item):
         if isinstance(item['data'],bytes):
             print(item['data'].decode('utf-8'))
@@ -55,7 +55,7 @@ class Listener(threading.Thread):
             if item['data'] == b"KILL":
                 self.pubsub.unsubscribe()
                 log(WARNING,'Killed!')
-                #print(self, "unsubscribed and finished")
+                print(self, "unsubscribed and finished")
                 break
             else:
                 self.work(item)
@@ -90,7 +90,7 @@ class WorkSendToBotCommand(sublime_plugin.TextCommand):
                     print("Comandi inviati a Work")
                     print("---------------------------------")
             else:
-                log(ERROR,'Errore invio a Work, ripovare')
+                log(ERROR,'Errore invio a Work, riprovare')
                 log(ERROR,r.text)
 
 class MecomWorkKillRedis(sublime_plugin.TextCommand):
