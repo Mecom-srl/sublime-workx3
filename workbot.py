@@ -1,14 +1,14 @@
 import sublime
 import sublime_plugin
-from urllib import request,parse
+from urllib import request, parse
 import json
 import threading
-import sys,os
-import socket 
+import sys, os
+import socket
 import requests
 import getpass
 
-__version__ = '1.5'
+__version__ = '1.6'
 settings_file = 'WorkX3.sublime-settings'
 settings = {}
 PLUGIN_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -17,14 +17,15 @@ sys.path.insert(0, os.path.join(PLUGIN_DIR, 'packages'))
 import redis
 from hashlib import sha224
 
-hostkey = sha224(("%s %s" % (getpass.getuser(),socket.gethostname())).encode()).hexdigest()
-
+hostkey = sha224(("%s %s" % (getpass.getuser(), socket.gethostname())).encode()).hexdigest()
 
 # Log Levels
 DEBUG = 'DEBUG'
 INFO = 'INFO'
 WARNING = 'WARNING'
 ERROR = 'ERROR'
+
+
 def log(lvl, message, *args, **kwargs):
     try:
         if lvl == DEBUG and not settings.get('debug'):
@@ -38,6 +39,7 @@ def log(lvl, message, *args, **kwargs):
     except RuntimeError:
         sublime.set_timeout(lambda: log(lvl, message, *args, **kwargs), 0)
 
+
 class Listener(threading.Thread):
     def __init__(self, r, channels):
         threading.Thread.__init__(self)
@@ -46,15 +48,15 @@ class Listener(threading.Thread):
         self.pubsub.subscribe(channels)
 
     def work(self, item):
-        if isinstance(item['data'],bytes):
+        if isinstance(item['data'], bytes):
             print(item['data'].decode('utf-8'))
         # print(item['channel'], ":", item['data'])
-    
+
     def run(self):
         for item in self.pubsub.listen():
             if item['data'] == b"KILL":
                 self.pubsub.unsubscribe()
-                log(WARNING,'Killed!')
+                log(WARNING, 'Killed!')
                 print(self, "unsubscribed and finished")
                 break
             else:
@@ -73,7 +75,7 @@ class WorkSendToBotCommand(sublime_plugin.TextCommand):
                 text = self.view.word(selection)
 
             text = self.view.substr(selection)
-            
+
             params = dict(
                 channel='sublime_%s' % socket.gethostname(),
                 user=hostkey,
@@ -81,7 +83,7 @@ class WorkSendToBotCommand(sublime_plugin.TextCommand):
             )
             # r = requests.post("http://workx3.mecom.lan/bot/sublimeinput/",params,timeout=60)
             # "http://localhost:8001/bot/sublimeinput/"
-            r = requests.post(settings.get("host"),params,timeout=60, verify=False)
+            r = requests.post(settings.get("host"), params, timeout=60, verify=False)
 
             if r.status_code == requests.codes.ok:
                 if not r.text.startswith('ok'):
@@ -90,8 +92,9 @@ class WorkSendToBotCommand(sublime_plugin.TextCommand):
                     print("Comandi inviati a Work")
                     print("---------------------------------")
             else:
-                log(ERROR,'Errore invio a Work, riprovare')
-                log(ERROR,r.text)
+                log(ERROR, 'Errore invio a Work, riprovare')
+                log(ERROR, r.text)
+
 
 class MecomWorkKillRedis(sublime_plugin.TextCommand):
     def run(self, edit):
@@ -99,27 +102,22 @@ class MecomWorkKillRedis(sublime_plugin.TextCommand):
         r = redis.Redis(settings.get('redis'))
         r.publish('sublime_%s' % socket.gethostname(), 'KILL')
 
+
 class MecomWorkTestRedis(sublime_plugin.TextCommand):
     def run(self, edit):
         log(INFO, "Test settings.get('redis')")
-        r = redis.Redis(REDIS_SERVER)
+        r = redis.Redis(settings.get('redis'))
         r.publish('sublime_%s' % socket.gethostname(), 'Test')
-
 
 
 def plugin_loaded():
     global settings
     log(INFO, 'Initializing MecomWork plugin v%s' % __version__)
     settings = sublime.load_settings(settings_file)
-    
-    log(INFO,'Redis listener launch on ' + settings.get('redis'))
+
+    log(INFO, 'Redis listener launch on ' + settings.get('redis'))
     r = redis.Redis(settings.get('redis'))
     client = Listener(r, ['sublime_%s' % socket.gethostname()])
     client.start()
 
-
-    #r.publish('sublime_%s' % socket.gethostname(), 'this will reach the listener')
-
-    
-
-
+    # r.publish('sublime_%s' % socket.gethostname(), 'this will reach the listener')
