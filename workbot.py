@@ -81,7 +81,7 @@ class WorkSendToBotCommand(sublime_plugin.TextCommand):
             )
             # r = requests.post("http://workx3.mecom.lan/bot/sublimeinput/",params,timeout=60)
             # "http://localhost:8001/bot/sublimeinput/"
-            r = requests.post(settings.get("host"),params,timeout=60)
+            r = requests.post(settings.get("host"),params,timeout=60, verify=False)
 
             if r.status_code == requests.codes.ok:
                 if not r.text.startswith('ok'):
