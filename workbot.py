@@ -8,7 +8,7 @@ import socket
 import requests
 import getpass
 
-__version__ = '1.2'
+__version__ = '1.3'
 settings_file = 'WorkX3.sublime-settings'
 settings = {}
 PLUGIN_DIR = os.path.dirname(os.path.realpath(__file__))
