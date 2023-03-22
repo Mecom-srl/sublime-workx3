@@ -1,4 +1,4 @@
 {
 	"host":"https://work.mecomsrl.com/bot/sublimeinput/",
-	"redis":"192.168.2.18"
+	"redis":"redis.mecom.lan"
 }
