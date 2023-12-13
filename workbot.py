@@ -77,7 +77,7 @@ class WorkSendToBotCommand(sublime_plugin.TextCommand):
             text = self.view.substr(selection)
 
             params = dict(
-                channel='sublime_%s' % socket.gethostname(),
+                channel='sublime_%s' % hostkey,
                 user=hostkey,
                 text=text
             )
