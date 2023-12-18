@@ -1,21 +1,17 @@
 import sublime
 import sublime_plugin
-from urllib import request, parse
-import json
 import threading
-import sys, os
+import os
 import socket
 import requests
 import getpass
-
-__version__ = '1.7'
+from hashlib import sha224
+from time import sleep
+__version__ = '1.8'
 settings_file = 'WorkX3.sublime-settings'
 settings = {}
 PLUGIN_DIR = os.path.dirname(os.path.realpath(__file__))
-# add redis package to path
-sys.path.insert(0, os.path.join(PLUGIN_DIR, 'packages'))
-import redis
-from hashlib import sha224
+
 
 hostkey = sha224(("%s %s" % (getpass.getuser(), socket.gethostname())).encode()).hexdigest()
 
@@ -66,7 +62,6 @@ class Listener(threading.Thread):
 class WorkSendToBotCommand(sublime_plugin.TextCommand):
 
     def run(self, edit):
-
         sublime.active_window().run_command("show_panel", {"panel": "console", "toggle": True})
 
         for selection in self.view.sel():
@@ -77,47 +72,28 @@ class WorkSendToBotCommand(sublime_plugin.TextCommand):
             text = self.view.substr(selection)
 
             params = dict(
-                channel='sublime_%s' % hostkey,
-                user=hostkey,
-                text=text
+                user=hostkey
             )
-            # r = requests.post("http://workx3.mecom.lan/bot/sublimeinput/",params,timeout=60)
-            # "http://localhost:8001/bot/sublimeinput/"
-            r = requests.post(settings.get("host"), params, timeout=60, verify=False)
+            for riga in text.splitlines():
+                if riga.strip() == '':
+                    continue
+                params['text'] = riga.strip()
+                r = requests.post(settings.get("host"), params, timeout=60)
 
-            if r.status_code == requests.codes.ok:
-                if not r.text.startswith('ok'):
-                    print(r.text)
+                if r.status_code == requests.codes.ok:
+                    for line in r.text.splitlines():
+                        print(line)
                 else:
-                    print("Comandi inviati a Work")
-                    print("---------------------------------")
-            else:
-                log(ERROR, 'Errore invio a Work, riprovare')
-                log(ERROR, r.text)
+                    log(ERROR, 'Errore invio a Work, riprovare')
+                    log(ERROR, r.text)
+                    sleep(1)
+                sleep(0.5)
 
 
-class MecomWorkKillRedis(sublime_plugin.TextCommand):
-    def run(self, edit):
-        log(INFO, "Kill Connection")
-        r = redis.Redis(settings.get('redis'))
-        r.publish('sublime_%s' % socket.gethostname(), 'KILL')
 
-
-class MecomWorkTestRedis(sublime_plugin.TextCommand):
-    def run(self, edit):
-        log(INFO, "Test settings.get('redis')")
-        r = redis.Redis(settings.get('redis'))
-        r.publish('sublime_%s' % socket.gethostname(), 'Test')
 
 
 def plugin_loaded():
     global settings
     log(INFO, 'Initializing MecomWork plugin v%s' % __version__)
     settings = sublime.load_settings(settings_file)
-
-    log(INFO, 'Redis listener launch on ' + settings.get('redis'))
-    r = redis.Redis(settings.get('redis'))
-    client = Listener(r, ['sublime_%s' % socket.gethostname()])
-    client.start()
-
-    # r.publish('sublime_%s' % socket.gethostname(), 'this will reach the listener')
