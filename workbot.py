@@ -12,7 +12,7 @@ import getpass
 from hashlib import sha224
 from time import sleep
 
-__version__ = '1.9'
+__version__ = '2.0'
 settings_file = 'WorkX3.sublime-settings'
 settings = {}
 PLUGIN_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -54,7 +54,7 @@ class WorkBotThread(threading.Thread):
             if riga.strip() == '':
                 continue
             params['text'] = riga.strip()
-            r = requests.post(settings.get("host"), params, timeout=60)
+            r = requests.post(settings.get("host"), params, timeout=60, verify=False)
 
             if r.status_code == requests.codes.ok:
                 for line in r.text.splitlines():
