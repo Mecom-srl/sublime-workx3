@@ -11,8 +11,12 @@ import requests
 import getpass
 from hashlib import sha224
 from time import sleep
+from urllib3.exceptions import InsecureRequestWarning
 
-__version__ = '2.0'
+# Suppress only the single warning from urllib3 needed.
+requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
+
+__version__ = '2.1'
 settings_file = 'WorkX3.sublime-settings'
 settings = {}
 PLUGIN_DIR = os.path.dirname(os.path.realpath(__file__))
