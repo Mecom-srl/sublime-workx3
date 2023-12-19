@@ -65,8 +65,8 @@ class WorkBotThread(threading.Thread):
             else:
                 log(ERROR, 'Errore invio a Work, riprovare')
                 log(ERROR, r.text)
-                sleep(1)
-            sleep(0.5)
+                sleep(3)
+            sleep(1)
 
 
 class WorkSendToBotCommand(sublime_plugin.TextCommand):
