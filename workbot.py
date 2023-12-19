@@ -12,8 +12,10 @@ import getpass
 from hashlib import sha224
 from time import sleep
 
+# disable ssl warning
+requests.packages.urllib3.disable_warnings()
 
-__version__ = '2.1'
+__version__ = '2.2'
 settings_file = 'WorkX3.sublime-settings'
 settings = {}
 PLUGIN_DIR = os.path.dirname(os.path.realpath(__file__))
